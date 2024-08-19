@@ -1,0 +1,5 @@
+^renv$
+^renv\.lock$
+^FHIL.SC.utils\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
