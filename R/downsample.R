@@ -1,6 +1,6 @@
 #' Downsample counts data
 #'
-#' Downsample counts matrices to target read counts using multinomial sampling.
+#' Downsample counts matrices to target read counts.
 #' Downsampling can be performed at the whole matrix level, or at the
 #' column/cell level by setting `per_cell = TRUE` (the default). If the input
 #' is a Seurat object, the function will return a Seurat object with some optional
@@ -14,7 +14,6 @@
 #'  Seurat output based on new values
 #'
 #' @import Matrix
-#' @importFrom stats rmultinom
 #'
 #' @return A Seurat object or matrix, echoing the class of the input
 #' @export
@@ -37,11 +36,19 @@ downsample <- function(data, nreads, per_cell=TRUE, tidy_seurat_obj=TRUE) {
     stop('Data input should be a matrix, sparse matrix, or Seurat Object')
   }
 
-  downsample_vector <- function(count_vector, target_sum) {
-    original_sum <- sum(count_vector)
-    probs <- count_vector / original_sum
-    downsampled_counts <- rmultinom(1, size = target_sum, prob = probs)
-    return(as.vector(downsampled_counts))
+  downsample_vector <- function(original_counts, nreads) {
+    original_sum <- sum(original_counts)
+    original_counts <- as.vector(original_counts)
+    names(original_counts) <- 1:length(original_counts)
+    if (original_sum > nreads) {
+      downsampled_counts <- sample(rep(names(original_counts), original_counts),
+                                   size=nreads, replace=FALSE)
+      downsampled_counts <- table(factor(downsampled_counts, levels=names(original_counts)))
+    } else {
+      ## Fewer existing reads than the downsampling ratio, just pass data thru
+      downsampled_counts <- original_counts
+    }
+    return(downsampled_counts)
   }
 
   if (per_cell) {

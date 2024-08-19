@@ -20,7 +20,7 @@ Seurat output based on new values}
 A Seurat object or matrix, echoing the class of the input
 }
 \description{
-Downsample counts matrices to target read counts using multinomial sampling.
+Downsample counts matrices to target read counts.
 Downsampling can be performed at the whole matrix level, or at the
 column/cell level by setting \code{per_cell = TRUE} (the default). If the input
 is a Seurat object, the function will return a Seurat object with some optional

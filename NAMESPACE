@@ -2,4 +2,3 @@
 
 export(downsample)
 import(Matrix)
-importFrom(stats,rmultinom)
