@@ -2,3 +2,4 @@
 
 export(downsample)
 import(Matrix)
+importFrom(Matrix,rowSums)

@@ -38,12 +38,14 @@ downsample <- function(data, nreads, per_cell=TRUE, tidy_seurat_obj=TRUE) {
 
   downsample_vector <- function(original_counts, nreads) {
     original_sum <- sum(original_counts)
-    original_counts <- as.vector(original_counts)
-    names(original_counts) <- 1:length(original_counts)
+    # original_counts <- as.vector(original_counts)
+    # names(original_counts) <- 1:length(original_counts)
     if (original_sum > nreads) {
-      downsampled_counts <- sample(rep(names(original_counts), original_counts),
-                                   size=nreads, replace=FALSE)
-      downsampled_counts <- table(factor(downsampled_counts, levels=names(original_counts)))
+      # downsampled_counts <- sample(rep(names(original_counts), original_counts),
+      #                              size=nreads, replace=FALSE)
+      # downsampled_counts <- table(factor(downsampled_counts, levels=names(original_counts)))
+      sampled_indices <- sample.int(length(original_counts), size=nreads, replace = FALSE, prob=original_counts)
+      sampled_counts <- tabulate(sampled_indices, nbins=length(original_counts))
     } else {
       ## Fewer existing reads than the downsampling ratio, just pass data thru
       downsampled_counts <- original_counts
@@ -56,33 +58,6 @@ downsample <- function(data, nreads, per_cell=TRUE, tidy_seurat_obj=TRUE) {
   } else {
     downsampled_data <- downsample_vector(counts, nreads)
   }
-
-  ## This seems like overkill, but it will be preserved here in case it's wanted
-  # # Make downsampling exactly to nreads
-  # diff <- nreads - sum(downsampled_data)
-  #
-  # if (diff != 0) {
-  #   # Find the non-zero entries that can be adjusted
-  #   non_zero_indices <- which(as.vector(counts > 0))
-  #
-  #   # Use the original probabilities to weight the adjustments
-  #   adjust_probs <- probs[non_zero_indices]
-  #   adjust_probs <- probabilities[non_zero_indices]
-  #
-  #   # Normalize the adjustment probabilities to sum to 1
-  #   adjust_probs <- adjust_probs / sum(adjust_probs)
-  #
-  #   # Randomly select indices to adjust based on the adjusted probabilities
-  #   if (diff > 0) {
-  #     # If we need to add counts, increment random indices weighted by original probabilities
-  #     adjust_indices <- sample(non_zero_indices, diff, replace = TRUE, prob = adjust_probs)
-  #     downsampled_counts[adjust_indices] <- downsampled_counts[adjust_indices] + 1
-  #   } else {
-  #     # If we need to reduce counts, decrement random non-zero indices weighted by original probabilities
-  #     adjust_indices <- sample(non_zero_indices, abs(diff), replace = TRUE, prob = adjust_probs)
-  #     downsampled_counts[adjust_indices] <- pmax(downsampled_counts[adjust_indices] - 1, 0)
-  #   }
-  # }
 
   # reform matrix from vector
   downsampled_matrix <- Matrix::Matrix(data=matrix(downsampled_data,
